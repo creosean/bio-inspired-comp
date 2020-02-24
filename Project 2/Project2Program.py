@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 from scipy import stats
+import itertools
 
 def twoRandomNumbers(a,b):
     if random.random() < 0.5: return a
@@ -85,15 +86,19 @@ def initialize_experiment(experiment):
 
 
 
-array_2d = initialize_array()
+#array_2d = initialize_array()
 
-display_result_terminal(array_2d)
+#display_result_terminal(array_2d)
 
-write_to_pgm(array_2d)
+#write_to_pgm(array_2d)
 
 experiment_list = initialize_experiment(3)
 
 current_experiment = "experiment_one"
+
+number_flipped_cells = 0
+number_iterations = 0
+
 
 for e in range(3):
 
@@ -106,15 +111,61 @@ for e in range(3):
     j2 = experiment_list[3][1]
 
     if(e == 1):
-        current_experiment = "experiement_two"
+        current_experiment = "experimement_two"
     elif(e == 2): current_experiment = "experiment_three"
-
 
     for p in range(len(R1)):
 
         r1 = R1[p]
         r2 = R2[p]
         h = H[p]
+
+        number_flipped_cells = 0
+
+        array_2d = initialize_array()
+
+        while(1):
+
+            #this creates a list of every possible cell, and then shuffles the order. It is the cartesian product, so we dont need to use the 30x30 array and search through it every time
+            all_combinations = list(itertools.product([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29], repeat=2))
+
+            shuffled_indices = np.arange(900)
+            np.random.shuffle(shuffled_indices)
+
+            near_cells = 0
+            far_cells = 0
+
+            for n in range(len(all_combinations)):
+
+                current_index = shuffled_indices[n]
+                i1 = all_combinations[current_index][0]
+                i2 = all_combinations[current_index][1]
+
+                past_value = array_2d[i1][i2]
+
+                for x in range(30):
+                    for y in range(30):
+                        distance = calculate_distance(i1, i2, x, y)
+                        if(distance < r1): near_cells += array_2d[x][y]
+                        elif(distance < r2): far_cells += array_2d[x][y]
+
+                near_cells *= j1
+                far_cells *= j2
+
+                if((h + far_cells + near_cells) > 1): 
+                    array_2d[i1][i2] = 1
+                    if(past_value != 1): number_flipped_cells += 1
+                else:
+                    array_2d[i1][i2] = -1
+                    if(past_value != -1): number_flipped_cells += 1
+
+            
+            display_result_terminal(array_2d)
+
+            number_iterations += 1
+            if(number_flipped_cells == 0 or number_iterations > 30): break
+        
+        
 
 
 

@@ -50,29 +50,31 @@ def initialize_experiment(experiment):
     h = np.array([])
     R2 = np.array([])
     R1 = np.array([])
+    j = np.array([])
     
     if(experiment == 1):
-        np.append(h, [-1, -1, -2])
-        np.append(R2, [15, 15, 15])
-        np.append(R1, [1, 3, 6])
+        h = [-1, -1, -2]
+        R2 = [15, 15, 15]
+        R1 = [1, 3, 6]
+        j = [1, 0]
 
     elif(experiment == 2):
-        np.append(h, [0, -2, -1, 0, -5, -3, 0, 0, 0, 0, -5, -3, 0, 0, -6, -3, 0])
-        np.append(R2, [2, 4, 4, 4, 6, 6, 6, 9, 13, 5, 7, 7, 7, 12, 12, 12, 12])
-        np.append(R1, [1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 9, 9, 9])
+        h = [0, -2, -1, 0, -5, -3, 0, 0, 0, 0, -5, -3, 0, 0, -6, -3, 0]
+        R2 = [2, 4, 4, 4, 6, 6, 6, 9, 13, 5, 7, 7, 7, 12, 12, 12, 12]
+        R1 = [1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 9, 9, 9]
+        j = [0, -0.1]
+
         
     elif(experiment == 3):
-        np.append(h, [0, -4, -2, 0, -6, -3, 0, 0, -1, 0, -6, -3, 0, 0, 0, 0, 0])
-        np.append(R2, [2, 5, 5, 5, 9, 9, 9, 14, 5, 5, 9, 9, 9, 14, 9, 14, 14])
-        np.append(R1, [1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 7, 7, 12])
+        h = [0, -4, -2, 0, -6, -3, 0, 0, -1, 0, -6, -3, 0, 0, 0, 0, 0]
+        R2 = [2, 5, 5, 5, 9, 9, 9, 14, 5, 5, 9, 9, 9, 14, 9, 14, 14]
+        R1 = [1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 7, 7, 12]
+        j = [1, -0.1]
+
     
-    return np.array([R1, R2, h])
+    return np.array([R1, R2, h, j])
 
-R1 = np.array(15)
 
-R2 = np.array(15)
-
-h = np.array(15)
 
 array_2d = initialize_array()
 
@@ -81,3 +83,9 @@ display_result_terminal(array_2d)
 write_to_pgm(array_2d)
 
 experiment_list = initialize_experiment(3)
+
+R1 = experiment_list[0]
+R2 = experiment_list[1]
+h = experiment_list[2]
+j1 = experiment_list[3][0]
+j2 = experiment_list[3][1]

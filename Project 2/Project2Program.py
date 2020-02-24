@@ -42,8 +42,17 @@ def write_to_pgm(array_2d):
                     else: f.write("255 ")
                 f.write('\n')
 
-def calculate_distance(i1, j1, i2, j2):
-    return (abs(i1 - j1) + abs(i2 - j2))
+#The notation here is a bit convoluted, but I am keeping it as such for continuity between this and the intructions
+#i refers to a cell, and i1 would refer to its first index, and i2 the second. Intuitively, i1 would be my i coordinate, and i2 the j coordinate.
+def calculate_distance(i1, i2, j1, j2):
+    x = abs(i1 - j1)
+    if(x > 15): x = 30 - x
+
+    y = abs(i2 - j2)
+    if(y > 15): y = 30 - y
+
+    return (x + y)
+
 
 def initialize_experiment(experiment):
     
@@ -84,8 +93,32 @@ write_to_pgm(array_2d)
 
 experiment_list = initialize_experiment(3)
 
-R1 = experiment_list[0]
-R2 = experiment_list[1]
-h = experiment_list[2]
-j1 = experiment_list[3][0]
-j2 = experiment_list[3][1]
+current_experiment = "experiment_one"
+
+for e in range(3):
+
+    experiment_list = initialize_experiment(e + 1)
+
+    R1 = experiment_list[0]
+    R2 = experiment_list[1]
+    H = experiment_list[2]
+    j1 = experiment_list[3][0]
+    j2 = experiment_list[3][1]
+
+    if(e == 1):
+        current_experiment = "experiement_two"
+    elif(e == 2): current_experiment = "experiment_three"
+
+
+    for p in range(len(R1)):
+
+        r1 = R1[p]
+        r2 = R2[p]
+        h = H[p]
+
+
+
+
+
+
+

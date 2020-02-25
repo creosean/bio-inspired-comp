@@ -120,12 +120,16 @@ for e in range(3):
         r2 = R2[p]
         h = H[p]
 
-        number_flipped_cells = 0
+        
 
         array_2d = initialize_array()
 
-        while(1):
+        correlation = np.zeros(15)
+        joint_entropy = np.zeros(15)
+        mutual_information = np.zeros(15)
 
+        while(1):
+            number_flipped_cells = 0
             #this creates a list of every possible cell, and then shuffles the order. It is the cartesian product, so we dont need to use the 30x30 array and search through it every time
             all_combinations = list(itertools.product([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29], repeat=2))
 
@@ -164,6 +168,101 @@ for e in range(3):
 
             number_iterations += 1
             if(number_flipped_cells == 0 or number_iterations > 30): break
+        
+        sum_i = 0
+        sum_ij = 0
+
+        for l in range(15):
+
+            for xi in range(30):
+                for yi in range(30):
+                    sum_i += array_2d[xi][yi]
+
+                    for xj in range(30):
+                        for yj in range(30):
+                            if((xi == xj) and (yj <= yi)):
+                                continue
+                            elif(l == calculate_distance(xi, yi, xj, yj)):
+                                sum_ij += array_2d[xi][yi] * array_2d[xj][yj]
+            if(l > 0):
+                correlation[l] = abs( ((2/(30 * 30 * 4 * l)) * sum_ij) - ((1/(30 * 30)) * sum_i)**2 )        
+            else: correlation[l] = abs( 1 - ((1/(30 * 30)) * sum_i)**2 )
+
+        
+        sum_converted = 0
+
+        for x in range(30):
+            for y in range(30):
+                sum_converted += (1 + array_2d[x][y]) / 2
+
+        prob_pos = (1 / (30 * 30)) * sum_converted
+        prob_neg = 1 - prob_pos
+
+        overall_entropy = 0
+
+        if(prob_neg == 0 and prob_pos == 0):
+            overall_entropy = 0
+
+        elif(prob_neg == 0 and prob_pos != 0):
+            overall_entropy = -(prob_pos * math.log(prob_pos))
+
+        elif(prob_neg != 0 and prob_pos == 0):
+            overall_entropy = -(prob_neg * math.log(prob_neg))
+
+        else:
+            overall_entropy = -((prob_pos * math.log(prob_pos)) + (prob_neg * math.log(prob_neg)))
+
+
+        sum_pos = 0
+        sum_neg = 0
+        pos_entropy = 0
+        neg_entropy = 0
+        fuzzy_entropy = 0
+
+        for l in range(15):
+
+            for xi in range(30):
+                for yi in range(30):
+                    for xj in range(30):
+                        for yj in range(30):
+                            if((xi == xj) and (yj <= yi)):
+                                continue
+                            elif(l == calculate_distance(xi, yi, xj, yj)):
+                                sum_pos += ((1 + array_2d[xi][yi]) / 2) * ((1 + array_2d[xj][yj]) / 2)
+                                sum_neg += (-((1 + array_2d[xi][yi]) / 2)) * (-((1 + array_2d[xj][yj]) / 2))
+            if(l > 0):
+                pos_entropy = ((2/(30 * 30 * 4 * l)) * sum_pos) 
+                neg_entropy = ((2/(30 * 30 * 4 * l)) * sum_neg)        
+            else: 
+                pos_entropy = (1 * sum_pos) 
+                neg_entropy = (1 * sum_neg)
+
+            fuzzy_entropy = 1 - pos_entropy - neg_entropy
+
+            if(pos_entropy == 0):
+                pos_entropy = 0
+            else:
+                pos_entropy *= math.log(pos_entropy)
+
+            if(neg_entropy == 0):
+                neg_entropy = 0
+            else:
+                neg_entropy *= math.log(neg_entropy)
+
+            if(fuzzy_entropy <= 0):
+                fuzzy_entropy = 0
+            else:
+                fuzzy_entropy *= math.log(fuzzy_entropy)
+
+            joint_entropy[l] = -(pos_entropy + neg_entropy + fuzzy_entropy)
+        
+        for l in range(15):
+            mutual_information[l] = (2 * overall_entropy) - joint_entropy[l]
+        
+
+
+
+
         
         
 

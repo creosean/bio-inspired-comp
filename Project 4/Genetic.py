@@ -15,11 +15,9 @@ def crossover(pc):
     else: return 0
 
 def initialize(l, n):
-    poparray = []
+    poparray = [[0 for x in range(l)] for t in range(n)]
 
     for i in range(n):
-        poparray[i] = []
-
         for j in range(l):
             poparray[i][j] = twoRandomNumbers(1,0)
 
@@ -49,10 +47,10 @@ def mutate(offspring, pm):
 
 def calculateFitness(poparray, l, n, pm, pc):
 
-    sumarray = []
-    fitnessarray = []
-    normalizedfitnessarray = []
-    steppingtotal = []
+    sumarray = [float] * n
+    fitnessarray = [float] * n
+    normalizedfitnessarray = [float] * n
+    steppingtotal = [float] * n
     totalfitness = 0
 
     for i in range(len(poparray)):
@@ -67,20 +65,16 @@ def calculateFitness(poparray, l, n, pm, pc):
     for i in range(len(poparray)):
         normalizedfitnessarray[i] = fitnessarray[i] / totalfitness
         if i:
-            steppingtotal[i] += normalizedfitnessarray[i] + steppingtotal[i - 1]
+            steppingtotal[i] = normalizedfitnessarray[i] + steppingtotal[i - 1]
         else:
-            steppingtotal[i] += normalizedfitnessarray[i]
-    
-    rand1 = random.random()
-    rand2 = random.random()
+            steppingtotal[i] =  normalizedfitnessarray[i]
 
-    parent1 = []
-    parent2 = []
-    offspring1 = []
-    offspring2 = []
+    offspring1 = [int] * l
+    offspring2 = [int] * l
 
-    newpoparray = []
+    newpoparray = [[0 for x in range(l)] for t in range(n)]
     newpoparrayindex = 0
+
 
     for i in range(math.floor(n/2)):
         rand1bool = False
@@ -91,22 +85,28 @@ def calculateFitness(poparray, l, n, pm, pc):
 
         crossoverpoint = 0
 
+        rand1 = random.random()
+        rand2 = random.random()
+
         for j in range(len(steppingtotal)):
-            if rand1 > steppingtotal[j]:
-                parent1index = j + 1
+            if (rand1 < steppingtotal[j]):
+                parent1index = j
                 rand1bool = True 
                 break
+            
 
-        
 
         while not rand1bool:
             for j in range(len(steppingtotal)):
-                if rand2 > steppingtotal[j]:
-                    if (j + 1 == parent1index):
+                if (rand2 < steppingtotal[j]):
+                    if (j == parent1index):
                         rand2 = random.random()
                         break
-                    parent2index = j + 1
-                    rand2bool = True
+                    else:
+                        parent2index = j
+                        rand2bool = True
+                        break
+
 
         if crossover(pc):
 
@@ -133,6 +133,7 @@ def calculateFitness(poparray, l, n, pm, pc):
         newpoparray[newpoparrayindex] = offspring2
         newpoparrayindex += 1
 
+
     averagefitness = totalfitness / n
 
     bestfitness = 0
@@ -154,19 +155,69 @@ def calculateFitness(poparray, l, n, pm, pc):
 
     return newpoparray, averagefitness, bestfitness, correctbits
 
-        
-        
-   
-        
-  
 
 
-def algorithm(l, n, g, pm, pc):
+def algorithm(l, n, g, pm, pc, epochn, testn, csv_writer):
 
-    poparray = initialize()
+    poparray = initialize(l, n)
+    poparray = initialize(l, n)
 
+    averagefitnessarray = [float] * g
+    bestfitnessarray = [float] * g
+    correctbitsarray = [float] * g
+    
     for G in range(g):
-        poparray = calculateFitness(poparray, l, n, pm, pc)
+        poparray, averagefitnessarray[G], bestfitnessarray[G], correctbitsarray[G] = calculateFitness(poparray, l, n, pm, pc)
+
+   
+    
+
+
+    csv_writer.writerow(["epoch number", "test number", "l", "N", "G", "Pm", "Pc"])
+    csv_writer.writerow([epochn + 1, testn + 1, l, n, g, pm, pc])
+    csv_writer.writerow(["averagefitness"])
+    csv_writer.writerow(averagefitnessarray)
+    csv_writer.writerow(["bestfitness"])
+    csv_writer.writerow(bestfitnessarray)
+    csv_writer.writerow(["numcorrectbits"])
+    csv_writer.writerow(correctbitsarray)
+    csv_writer.writerow([" "])
+    
+
+
+def testcycle(l, n, g, pm, pc, epochn, csv_writer):
+
+    for i in range(3):
+        algorithm(l, n, g, pm, pc, epochn, i, csv_writer)
+
+
+
+l = []
+l = [20, 30, 10, 50, 50, 50]
+
+n = []
+n = [30, 20, 40, 50, 50, 50]
+
+pm = []
+pm = [0.033, 0.1, 0.01, 0.5, 0.033, 0.02]
+
+pc = []
+pc = [0.6, 0.3, 0.9, 0.5, 0.6, 0.4]
+
+g = []
+g = [10, 25, 5, 50, 50, 50]
+
+with open('data.csv', 'wt') as f:
+    csv_writer = csv.writer(f)
+
+    for i in range(len(g)):
+        testcycle(l[i], n[i], g[i], pm[i], pc[i], i, csv_writer)
+        csv_writer.writerow([" "])
+        csv_writer.writerow([" "])
+
+
+
+        
 
 
 

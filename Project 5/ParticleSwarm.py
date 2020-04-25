@@ -104,19 +104,19 @@ def initialize(num_particles, width, height, p_num):
 
     return np.array([pos_x_list, pos_y_list, vel_x_list, vel_y_list, personalbest_x_list, personalbest_y_list]), globalbest_x, globalbest_y, mdist, pdist, ndist
 
-problem_num = 1
+problem_num = 2
 
-max_epochs = 1000
+max_epochs = 10000
 epochs_reached = 0
 
 width = 100
 height = 100
 
-num_particles = 10
+num_particles = 20
 
 inertia = 1
 
-max_v = 1
+max_v = 10
 
 c_1 = 2
 c_2 = 2
@@ -130,6 +130,9 @@ ndist = np.array([])
 error_x = 0
 error_y = 0
 
+x_error_list = np.array([])
+y_error_list = np.array([])
+
 globalbest_x = 0
 globalbest_y = 0
 
@@ -140,22 +143,22 @@ for i in range(max_epochs):
     for n in range(num_particles):
         r_1 = random.uniform(0, 1)
         r_2 = random.uniform(0, 1)
-        pos_vel_pers[0][n] = update_velocity(inertia, pos_vel_pers[0][n], c_1, r_1, pos_vel_pers[4][n], pos_vel_pers[2][n], c_2, r_2, globalbest_x)
-        pos_vel_pers[1][n] = update_velocity(inertia, pos_vel_pers[1][n], c_1, r_1, pos_vel_pers[5][n], pos_vel_pers[3][n], c_2, r_2, globalbest_y)
+        pos_vel_pers[2][n] = update_velocity(inertia, pos_vel_pers[2][n], c_1, r_1, pos_vel_pers[4][n], pos_vel_pers[0][n], c_2, r_2, globalbest_x)
+        pos_vel_pers[3][n] = update_velocity(inertia, pos_vel_pers[3][n], c_1, r_1, pos_vel_pers[5][n], pos_vel_pers[1][n], c_2, r_2, globalbest_y)
 
-        pos_vel_pers[0][n] = affirm_max_velocity(pos_vel_pers[0][n], pos_vel_pers[0][n], pos_vel_pers[1][n], max_v)
-        pos_vel_pers[1][n] = affirm_max_velocity(pos_vel_pers[1][n], pos_vel_pers[0][n], pos_vel_pers[1][n], max_v)
+        pos_vel_pers[2][n] = affirm_max_velocity(pos_vel_pers[2][n], pos_vel_pers[2][n], pos_vel_pers[3][n], max_v)
+        pos_vel_pers[3][n] = affirm_max_velocity(pos_vel_pers[3][n], pos_vel_pers[2][n], pos_vel_pers[3][n], max_v)
 
 
-        pos_vel_pers[2][n] = update_position(pos_vel_pers[2][n], pos_vel_pers[0][n])
-        pos_vel_pers[3][n] = update_position(pos_vel_pers[3][n], pos_vel_pers[1][n])
+        pos_vel_pers[0][n] = update_position(pos_vel_pers[0][n], pos_vel_pers[2][n])
+        pos_vel_pers[1][n] = update_position(pos_vel_pers[1][n], pos_vel_pers[3][n])
 
-        pdist[n] = math.sqrt((pos_vel_pers[2][n] - 20) ** 2 + (pos_vel_pers[3][n] - 7) ** 2)
-        ndist[n] = math.sqrt((pos_vel_pers[2][n] + 20) ** 2 + (pos_vel_pers[3][n] + 7) ** 2)
+        pdist[n] = math.sqrt((pos_vel_pers[0][n] - 20) ** 2 + (pos_vel_pers[1][n] - 7) ** 2)
+        ndist[n] = math.sqrt((pos_vel_pers[0][n] + 20) ** 2 + (pos_vel_pers[1][n] + 7) ** 2)
 
-        if(Q(pos_vel_pers[2][n], pos_vel_pers[3][n], mdist, pdist[n], ndist[n], problem_num) > Q(pos_vel_pers[4][n], pos_vel_pers[5][n], mdist, pdist[n], ndist[n], problem_num)):
-            pos_vel_pers[4][n] = pos_vel_pers[2][n]
-            pos_vel_pers[5][n] = pos_vel_pers[3][n]
+        if(Q(pos_vel_pers[0][n], pos_vel_pers[1][n], mdist, pdist[n], ndist[n], problem_num) > Q(pos_vel_pers[4][n], pos_vel_pers[5][n], mdist, pdist[n], ndist[n], problem_num)):
+            pos_vel_pers[4][n] = pos_vel_pers[0][n]
+            pos_vel_pers[5][n] = pos_vel_pers[1][n]
 
             if(Q(pos_vel_pers[4][n], pos_vel_pers[5][n], mdist, pdist[n], ndist[n], problem_num) > absolute(globalbest_x, globalbest_y, mdist, pdist[n], ndist[n], problem_num)):
                 globalbest_x = pos_vel_pers[4][n]
@@ -170,6 +173,9 @@ for i in range(max_epochs):
 
     epochs_reached += 1
 
+    x_error_list = np.append(x_error_list, error_x)
+    y_error_list = np.append(y_error_list, error_y)
+
     if(error_x < 0.01 and error_y < 0.01):
         break
 
@@ -180,4 +186,26 @@ for i in range(max_epochs):
 print(epochs_reached)
 print(error_x)
 print(error_y)
+
+
+plt.scatter(pos_vel_pers[0], pos_vel_pers[1], c="blue")
+plt.ylim(top = height / 2)
+plt.ylim(bottom = (height / 2) - height)
+plt.xlim(right = width / 2)
+plt.xlim(left = (width / 2) - width)
+plt.axhline(0, color='black')
+plt.axvline(0, color='black')
+plt.show()
+plt.scatter(pos_vel_pers[0], pos_vel_pers[1], c="blue")
+plt.ylim(top = height / 2)
+plt.ylim(bottom = (height / 2) - height)
+plt.xlim(right = width / 2)
+plt.xlim(left = (width / 2) - width)
+plt.axhline(0, color='black')
+plt.axvline(0, color='black')
+if(problem_num == 1):
+    plt.scatter([20], [7], c="red", marker="^")
+elif(problem_num == 2):
+    plt.scatter([20, -20], [7, -7], c="red", marker="^")
+plt.show()
 
